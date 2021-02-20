@@ -22,10 +22,10 @@ struct ScoutState {
     REAR_RIGHT = 3
   };
 
-  struct MotorState {
-    double current = 0;  // in A
-    double rpm = 0;
-    double temperature = 0;
+  struct ActuatorState {
+    double motor_current = 0;  // in A
+    double motor_rpm = 0;
+    double motor_temperature = 0;
   };
 
   struct LightState {
@@ -41,7 +41,7 @@ struct ScoutState {
 
   // motor state
   static constexpr uint8_t motor_num = 4;
-  MotorState motor_states[motor_num];
+  ActuatorState motor_states[motor_num];
 
   // light state
   bool light_control_enabled = false;
