@@ -41,7 +41,7 @@ struct ScoutState {
 
   // motor state
   static constexpr uint8_t motor_num = 4;
-  ActuatorState motor_states[motor_num];
+  ActuatorState actuator_states[motor_num];
 
   // light state
   bool light_control_enabled = false;
