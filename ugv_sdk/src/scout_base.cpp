@@ -121,9 +121,10 @@ void ScoutBase::SetLightCommand(const ScoutLightCmd &cmd) {
 }
 
 void ScoutBase::DisableLightCmdControl() {
-  std::lock_guard<std::mutex> guard(light_cmd_mutex_);
-  light_ctrl_enabled_ = false;
-  light_ctrl_requested_ = true;
+  static uint8_t light_cmd_count = 0;
+  ScoutLightCmd cmd;
+  cmd.enable_ctrl = 0;
+  SendLightCmd(cmd, light_cmd_count++);
 }
 
 void ScoutBase::ParseCANFrame(can_frame *rx_frame) {
