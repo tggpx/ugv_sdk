@@ -120,6 +120,12 @@ void ScoutBase::SetLightCommand(const ScoutLightCmd &cmd) {
   SendLightCmd(cmd, light_cmd_count++);
 }
 
+void ScoutBase::DisableLightCmdControl() {
+  std::lock_guard<std::mutex> guard(light_cmd_mutex_);
+  light_ctrl_enabled_ = false;
+  light_ctrl_requested_ = true;
+}
+
 void ScoutBase::ParseCANFrame(can_frame *rx_frame) {
   AgxMessage status_msg;
   DecodeCanFrame(rx_frame, &status_msg);
