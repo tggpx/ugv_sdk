@@ -36,6 +36,7 @@ class ScoutBase : public MobileBase {
 
   // light control
   void SetLightCommand(const ScoutLightCmd &cmd);
+  void DisableLightCmdControl();
 
  private:
   // cmd/status update related variables
@@ -48,7 +49,7 @@ class ScoutBase : public MobileBase {
   // internal functions
   void SendMotionCmd(uint8_t count);
   void SendLightCmd(const ScoutLightCmd &cmd, uint8_t count);
-  void DisableLightCmdControl();
+
 
   void SendRobotCmd() override;
   void ParseCANFrame(can_frame *rx_frame) override;
