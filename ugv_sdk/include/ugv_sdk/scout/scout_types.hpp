@@ -24,7 +24,7 @@ struct ScoutState {
 
   struct ActuatorState {
     double motor_current = 0;  // in A
-    uint16_t motor_rpm = 0;
+    double motor_rpm = 0;
     uint16_t motor_pulses = 0;
     double motor_temperature = 0;
 

@@ -18,6 +18,7 @@ void ScoutBase::SendRobotCmd() {
   static uint8_t cmd_count = 0;
   //   EnableCommandedMode();
   if (can_connected_) {
+    EnableCommandedMode();
     SendMotionCmd(cmd_count++);
   }
 }
@@ -193,9 +194,11 @@ void ScoutBase::UpdateScoutState(const AgxMessage &status_msg,
       state.actuator_states[msg.motor_id].motor_rpm = static_cast<int16_t>(
           static_cast<uint16_t>(msg.data.state.rpm.low_byte) |
           static_cast<uint16_t>(msg.data.state.rpm.high_byte) << 8);
-      state.actuator_states[msg.motor_id].motor_pulses = static_cast<int16_t>(
-          static_cast<uint16_t>(msg.data.state.pulse_count.low_byte) |
-          static_cast<uint16_t>(msg.data.state.pulse_count.high_byte) << 8);
+      state.actuator_states[msg.motor_id].motor_pulses = static_cast<int32_t>(
+          static_cast<uint32_t>(msg.data.state.pulse_count.lsb) |
+          static_cast<uint32_t>(msg.data.state.pulse_count.low_byte) << 8 |
+          static_cast<uint32_t>(msg.data.state.pulse_count.high_byte) << 16 |
+          static_cast<uint32_t>(msg.data.state.pulse_count.msb) << 24);
       break;
     }
     case AgxMsgActuatorLSState: {

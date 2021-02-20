@@ -23,7 +23,8 @@
 namespace westonrobot {
 class ScoutBase : public MobileBase {
  public:
-  ScoutBase() : MobileBase(){};
+  ScoutBase(bool is_scout_mini = false)
+    : MobileBase(),is_scout_mini_(is_scout_mini){};
   ~ScoutBase() = default;
 
   // get robot state
@@ -39,6 +40,7 @@ class ScoutBase : public MobileBase {
   void DisableLightCmdControl();
 
  private:
+  bool is_scout_mini_ = false;
   // cmd/status update related variables
   std::mutex scout_state_mutex_;
   std::mutex motion_cmd_mutex_;

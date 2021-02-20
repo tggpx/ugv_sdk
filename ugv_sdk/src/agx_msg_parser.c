@@ -75,7 +75,7 @@ bool DecodeCanFrame(const struct can_frame *rx_frame, AgxMessage *msg) {
     case CAN_MSG_ACTUATOR2_HS_STATE_ID:
     case CAN_MSG_ACTUATOR3_HS_STATE_ID:
     case CAN_MSG_ACTUATOR4_HS_STATE_ID: {
-      msg->type = AgxMsgActuatorLSState;
+      msg->type = AgxMsgActuatorHSState;
       msg->body.actuator_hs_state_msg.motor_id =
           (uint8_t)(rx_frame->can_id - CAN_MSG_ACTUATOR1_HS_STATE_ID);
       memcpy(msg->body.actuator_hs_state_msg.data.raw, rx_frame->data,
