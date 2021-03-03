@@ -284,16 +284,16 @@ void ScoutBase::UpdateScoutState(const ScoutMessage &status_msg,
       const MotorDriverStatusMessage &msg =
           status_msg.body.motor_driver_status_msg;
       for (int i = 0; i < ScoutState::motor_num; ++i) {
-        state.motor_states[status_msg.body.motor_driver_status_msg.motor_id]
+        state.actuator_states[status_msg.body.motor_driver_status_msg.motor_id]
             .motor_current =
             (static_cast<uint16_t>(msg.data.status.current.low_byte) |
              static_cast<uint16_t>(msg.data.status.current.high_byte) << 8) /
             10.0;
-        state.motor_states[status_msg.body.motor_driver_status_msg.motor_id]
+        state.actuator_states[status_msg.body.motor_driver_status_msg.motor_id]
             .motor_rpm = static_cast<int16_t>(
             static_cast<uint16_t>(msg.data.status.rpm.low_byte) |
             static_cast<uint16_t>(msg.data.status.rpm.high_byte) << 8);
-        state.motor_states[status_msg.body.motor_driver_status_msg.motor_id]
+        state.actuator_states[status_msg.body.motor_driver_status_msg.motor_id]
             .motor_temperature = msg.data.status.temperature;
       }
       break;
