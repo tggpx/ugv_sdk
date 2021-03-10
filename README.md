@@ -1,16 +1,16 @@
 # UGV SDK
 
-![GitHub Workflow Status](https://github.com/westonrobot/wrp_sdk/workflows/Cpp/badge.svg)
-![GitHub Workflow Status](https://github.com/westonrobot/wrp_sdk/workflows/ROS/badge.svg)
+![GitHub Workflow Status](https://github.com/agilexrobotics/wrp_sdk/workflows/Cpp/badge.svg)
+![GitHub Workflow Status](https://github.com/agilexrobotics/wrp_sdk/workflows/ROS/badge.svg)
 
-This repository is a joint effort by the development teams at [Weston Robot](https://www.westonrobot.com/) (Singapore) and [AgileX Robotics](http://www.agilex.ai) (China). 
+This repository is a joint effort by the development teams at [Weston Robot](https://www.agilexrobotics.com/) (Singapore) and [AgileX Robotics](http://www.agilex.ai) (China). 
 
 | Package Name |                    Description                     |           Developed By           |
 | :----------: | :------------------------------------------------: | :------------------------------: |
 |   ugv_sdk    | encoding/decoding of robot communication protocols | Weston Robot and AgileX Robotics |
 |    wrp_io    |    generic asynchronous communication handling     |           Weston Robot           |
 
-Please create an issue on Github at https://github.com/westonrobot/ugv_sdk/issues if you encounter any problems in using the packages.
+Please create an issue on Github at https://github.com/agilexrobotics/ugv_sdk/issues if you encounter any problems in using the packages.
 
 ## Introduction
 
@@ -47,7 +47,7 @@ $ sudo apt-get install build-essential git cmake
 
 ```
 $ cd <your-catkin-ws>/src
-$ git clone --recursive https://github.com/westonrobot/ugv_sdk.git
+$ git clone --recursive https://github.com/agilexrobotics/ugv_sdk.git
 $ cd ..
 $ catkin_make
 ```
@@ -63,7 +63,7 @@ $ sudo apt install libncurses5-dev
 Configure and build
 
 ```
-$ git clone --recursive https://github.com/westonrobot/ugv_sdk.git
+$ git clone --recursive https://github.com/agilexrobotics/ugv_sdk.git
 $ cd ugv_sdk 
 $ mkdir build
 $ cd build
