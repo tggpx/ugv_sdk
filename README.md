@@ -1,11 +1,11 @@
 # UGV SDK
 
-![GitHub Workflow Status](https://github.com/westonrobot/wrp_sdk/workflows/Cpp/badge.svg)
-![GitHub Workflow Status](https://github.com/westonrobot/wrp_sdk/workflows/ROS/badge.svg)
+![GitHub Workflow Status](https://github.com/agilexrobotics/wrp_sdk/workflows/Cpp/badge.svg)
+![GitHub Workflow Status](https://github.com/agilexrobotics/wrp_sdk/workflows/ROS/badge.svg)
 
 This repository is a joint effort by the development teams at Weston Robot (Singapore) and AgileX Robotics (China).
 
-- Copyright (c) 2020 [Weston Robot](https://www.westonrobot.com/) 
+- Copyright (c) 2020 [Weston Robot](https://www.agilexrobotics.com/) 
 - Copyright (c) 2020 [AgileX Robotics](http://www.agilex.ai/?lang=zh-cn)
 
 ## Introduction
@@ -51,7 +51,7 @@ $ sudo apt-get install build-essential git cmake
 
 ```
 $ cd <your-catkin-ws>/src
-$ git clone --recursive https://github.com/westonrobot/ugv_sdk.git
+$ git clone --recursive https://github.com/agilexrobotics/ugv_sdk.git
 $ cd ..
 $ catkin_make
 ```
@@ -67,7 +67,7 @@ $ sudo apt install libncurses5-dev
 Configure and build
 
 ```
-$ git clone --recursive https://github.com/westonrobot/ugv_sdk.git
+$ git clone --recursive https://github.com/agilexrobotics/ugv_sdk.git
 $ cd ugv_sdk 
 $ mkdir build
 $ cd build
@@ -109,8 +109,6 @@ $ git submodule update --init --recursive
     ```
     # receiving data from can0
     $ candump can0
-    # send data to can0
-    $ cansend can0 001#1122334455667788
     ```
 
 Two scripts inside the "./scripts" folder are provided for easy setup. You can run "./setup_can2usb.bash" for the first-time setup and run "./bringup_can2usb.bash" to bring up the device each time you unplug and re-plug the adapter.
