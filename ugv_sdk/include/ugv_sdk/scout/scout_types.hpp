@@ -63,18 +63,45 @@ struct ScoutState {
 };
 
 struct ScoutMotionCmd {
-  ScoutMotionCmd(double linear = 0.0, double angular = 0.0)
-      : linear_velocity(linear), angular_velocity(angular) {}
+  enum class FaultClearFlag
+  {
+      NO_FAULT = 0x00,
+      BAT_UNDER_VOL = 0x01,
+      BAT_OVER_VOL = 0x02,
+      MOTOR1_COMM = 0x03,
+      MOTOR2_COMM = 0x04,
+      MOTOR3_COMM = 0x05,
+      MOTOR4_COMM = 0x06,
+      MOTOR_DRV_OVERHEAT = 0x07,
+      MOTOR_OVERCURRENT = 0x08
+  };
+
+  ScoutMotionCmd(double linear = 0.0, double angular = 0.0,
+                 FaultClearFlag fault_clr_flag = FaultClearFlag::NO_FAULT)
+      : linear_velocity(linear), angular_velocity(angular),
+        fault_clear_flag(fault_clr_flag){}
 
   double linear_velocity;
   double angular_velocity;
+  double transverse_linear_velocity;
+  FaultClearFlag fault_clear_flag;
 
+};
+struct ScoutCmdLimits {
   static constexpr double max_linear_velocity = 1.5;       // 1.5 m/s
   static constexpr double min_linear_velocity = -1.5;      // -1.5 m/s
   static constexpr double max_angular_velocity = 0.5235;   // 0.5235 rad/s
   static constexpr double min_angular_velocity = -0.5235;  // -0.5235 rad/s
 };
 
+struct ScoutMiniCmdLimits {
+  static constexpr double max_linear_velocity = 3.0;       // 3.0 m/s
+  static constexpr double min_linear_velocity = -3.0;      // -3.0 m/s
+  static constexpr double max_angular_velocity = 2.5235;   // 2.5235 rad/s
+  static constexpr double min_angular_velocity = -2.5235;  // -2.5235 rad/s
+  static constexpr double max_transverse_linear_velocity = 2.0;   // 2.0 m/s
+  static constexpr double min_transverse_linear_velocity = -2.0;  // -2.0 m/s
+};
 struct ScoutLightCmd {
   enum class LightMode {
     CONST_OFF = 0x00,

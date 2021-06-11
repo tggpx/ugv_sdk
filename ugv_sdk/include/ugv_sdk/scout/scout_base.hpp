@@ -33,7 +33,9 @@ class ScoutBase : public MobileBase {
   void EnableCommandedMode();
 
   // motion control
-  void SetMotionCommand(double linear_vel, double angular_vel);
+  void SetMotionCommand(double linear_vel, double transverse_linear_vel, double angular_vel,
+                        ScoutMotionCmd::FaultClearFlag fault_clr_flag =
+                            ScoutMotionCmd::FaultClearFlag::NO_FAULT);
 
   // light control
   void SetLightCommand(const ScoutLightCmd &cmd);
