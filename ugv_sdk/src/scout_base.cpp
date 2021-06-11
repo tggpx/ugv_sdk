@@ -37,10 +37,12 @@ void ScoutBase::SendMotionCmd(uint8_t count) {
       current_motion_cmd_.linear_velocity;
   m_msg.body.motion_control_msg.data.cmd.angular_velocity_cmd =
       current_motion_cmd_.angular_velocity;
+  m_msg.body.motion_control_msg.data.cmd.transverse_linear_velocity_cmd =
+      current_motion_cmd_.transverse_linear_velocity;
   motion_cmd_mutex_.unlock();
 
+
   m_msg.body.motion_control_msg.data.cmd.reserved0 = 0;
-  m_msg.body.motion_control_msg.data.cmd.reserved1 = 0;
   m_msg.body.motion_control_msg.data.cmd.count = count;
 
   if (can_connected_)
@@ -140,7 +142,7 @@ ScoutState ScoutBase::GetScoutState() {
 }
 
 void ScoutBase::SetMotionCommand(
-    double linear_vel, double angular_vel,
+    double linear_vel, double transverse_linear_vel, double angular_vel,
     ScoutMotionCmd::FaultClearFlag fault_clr_flag) {
   // make sure cmd thread is started before attempting to send commands
   if (!cmd_thread_started_) StartCmdThread();
@@ -160,6 +162,7 @@ void ScoutBase::SetMotionCommand(
         linear_vel / ScoutCmdLimits::max_linear_velocity * 100.0);
     current_motion_cmd_.angular_velocity = static_cast<int8_t>(
         angular_vel / ScoutCmdLimits::max_angular_velocity * 100.0);
+    current_motion_cmd_.transverse_linear_velocity = static_cast<int8_t>(transverse_linear_vel / ScoutCmdLimits::max_angular_velocity * 100.0);
     current_motion_cmd_.fault_clear_flag = fault_clr_flag;
   } else {
     if (linear_vel < ScoutMiniCmdLimits::min_linear_velocity)
@@ -176,6 +179,7 @@ void ScoutBase::SetMotionCommand(
         linear_vel / ScoutMiniCmdLimits::max_linear_velocity * 100.0);
     current_motion_cmd_.angular_velocity = static_cast<int8_t>(
         angular_vel / ScoutMiniCmdLimits::max_angular_velocity * 100.0);
+    current_motion_cmd_.transverse_linear_velocity = static_cast<int8_t>(transverse_linear_vel / ScoutCmdLimits::max_angular_velocity * 100.0);
     current_motion_cmd_.fault_clear_flag = fault_clr_flag;
   }
 

@@ -457,8 +457,8 @@ bool ConstructControlMessage(ScoutMessage *msg)
         msg->body.motion_control_msg.data.cmd.fault_clear_flag = uart_parsing_data.payload_buffer[1];
         msg->body.motion_control_msg.data.cmd.linear_velocity_cmd = uart_parsing_data.payload_buffer[2];
         msg->body.motion_control_msg.data.cmd.angular_velocity_cmd = uart_parsing_data.payload_buffer[3];
-        msg->body.motion_control_msg.data.cmd.reserved0 = uart_parsing_data.payload_buffer[4];
-        msg->body.motion_control_msg.data.cmd.reserved1 = uart_parsing_data.payload_buffer[5];
+        msg->body.motion_control_msg.data.cmd.transverse_linear_velocity_cmd = uart_parsing_data.payload_buffer[4];
+        msg->body.motion_control_msg.data.cmd.reserved0 = uart_parsing_data.payload_buffer[5];
         msg->body.motion_control_msg.data.cmd.count = uart_parsing_data.frame_cnt;
         msg->body.motion_control_msg.data.cmd.checksum = uart_parsing_data.frame_checksum;
         break;
