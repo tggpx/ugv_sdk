@@ -17,8 +17,8 @@
 
 #include "ugv_sdk/mobile_base.hpp"
 
-#include "ugv_sdk/hunter/hunter_protocol.h"
-#include "ugv_sdk/hunter/hunter_can_parser.h"
+//#include "ugv_sdk/hunter/hunter_protocol.h"
+#include "ugv_sdk/proto/agx_msg_parser.h"
 #include "ugv_sdk/hunter/hunter_types.hpp"
 
 namespace westonrobot {
@@ -55,10 +55,10 @@ class HunterBase : public MobileBase {
   void SendMotionCmd(uint8_t count);
   void SendModeCtl();
   void SetParkMode();
-  void NewStatusMsgReceivedCallback(const HunterMessage &msg);
+  void NewStatusMsgReceivedCallback(const AgxMessage &msg);
 
  public:
-  static void UpdateHunterState(const HunterMessage &status_msg,
+  static void UpdateHunterState(const AgxMessage &status_msg,
                                 HunterState &state);
 };
 }  // namespace westonrobot

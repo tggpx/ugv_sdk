@@ -1,4 +1,4 @@
-#include "ugv_sdk/scout/scout_base.hpp"
+#include "ugv_sdk/bunker/bunker_base.hpp"
 
 #include <stdio.h>
 #include <string>
@@ -14,7 +14,7 @@
 #include "stopwatch.hpp"
 
 namespace westonrobot {
-void ScoutBase::SendRobotCmd() {
+void BunkerBase::SendRobotCmd() {
   static uint8_t cmd_count = 0;
   //   EnableCommandedMode();
   if (can_connected_) {
@@ -23,7 +23,7 @@ void ScoutBase::SendRobotCmd() {
   }
 }
 
-void ScoutBase::EnableCommandedMode() {
+void BunkerBase::EnableCommandedMode() {
   AgxMessage c_msg;
   c_msg.type = AgxMsgCtrlModeSelect;
   memset(c_msg.body.ctrl_mode_select_msg.raw, 0, 8);
@@ -35,7 +35,7 @@ void ScoutBase::EnableCommandedMode() {
   can_if_->SendFrame(c_frame);
 }
 
-void ScoutBase::SendMotionCmd(uint8_t count) {
+void BunkerBase::SendMotionCmd(uint8_t count) {
   // motion control message
   AgxMessage m_msg;
   m_msg.type = AgxMsgMotionCommand;
@@ -46,8 +46,6 @@ void ScoutBase::SendMotionCmd(uint8_t count) {
       static_cast<int16_t>(current_motion_cmd_.linear_velocity * 1000);
   int16_t angular_cmd =
       static_cast<int16_t>(current_motion_cmd_.angular_velocity * 1000);
-  int16_t lateral_cmd =
-      static_cast<int16_t>(current_motion_cmd_.lateral_velocity * 1000);
   motion_cmd_mutex_.unlock();
 
   // SendControlCmd();
@@ -59,10 +57,6 @@ void ScoutBase::SendMotionCmd(uint8_t count) {
       (static_cast<uint16_t>(angular_cmd) >> 8) & 0x00ff;
   m_msg.body.motion_command_msg.cmd.angular_velocity.low_byte =
       (static_cast<uint16_t>(angular_cmd) >> 0) & 0x00ff;
-  m_msg.body.motion_command_msg.cmd.lateral_velocity.high_byte =
-      (static_cast<uint16_t>(lateral_cmd) >> 8) & 0x00ff;
-  m_msg.body.motion_command_msg.cmd.lateral_velocity.low_byte =
-      (static_cast<uint16_t>(lateral_cmd) >> 0) & 0x00ff;
 
   // send to can bus
   can_frame m_frame;
@@ -70,7 +64,7 @@ void ScoutBase::SendMotionCmd(uint8_t count) {
   can_if_->SendFrame(m_frame);
 }
 
-void ScoutBase::SendLightCmd(const ScoutLightCmd &lcmd, uint8_t count) {
+void BunkerBase::SendLightCmd(const BunkerLightCmd &lcmd, uint8_t count) {
   AgxMessage l_msg;
   l_msg.type = AgxMsgLightCommand;
   memset(l_msg.body.light_command_msg.raw, 0, 8);
@@ -97,84 +91,57 @@ void ScoutBase::SendLightCmd(const ScoutLightCmd &lcmd, uint8_t count) {
   can_if_->SendFrame(l_frame);
 }
 
-ScoutState ScoutBase::GetScoutState() {
-  std::lock_guard<std::mutex> guard(scout_state_mutex_);
-  return scout_state_;
+BunkerState BunkerBase::GetBunkerState() {
+  std::lock_guard<std::mutex> guard(bunker_state_mutex_);
+  return bunker_state_;
 }
 
-void ScoutBase::SetMotionCommand(double linear_vel, double lateral_velocity, double angular_vel, ScoutMotionCmd::FaultClearFlag fault_clr_flag)
-{
+void BunkerBase::SetMotionCommand(double linear_vel, double angular_vel) {
   // make sure cmd thread is started before attempting to send commands
   if (!cmd_thread_started_) StartCmdThread();
 
-  if (lateral_velocity < ScoutMiniCmdLimits::min_lateral_velocity)
-      lateral_velocity = ScoutMiniCmdLimits::min_lateral_velocity;
-  if (lateral_velocity > ScoutMiniCmdLimits::max_lateral_velocity)
-      lateral_velocity = ScoutMiniCmdLimits::max_lateral_velocity;
+  if (linear_vel < BunkerMotionCmd::min_linear_velocity)
+    linear_vel = BunkerMotionCmd::min_linear_velocity;
+  if (linear_vel > BunkerMotionCmd::max_linear_velocity)
+    linear_vel = BunkerMotionCmd::max_linear_velocity;
+  if (angular_vel < BunkerMotionCmd::min_angular_velocity)
+    angular_vel = BunkerMotionCmd::min_angular_velocity;
+  if (angular_vel > BunkerMotionCmd::max_angular_velocity)
+    angular_vel = BunkerMotionCmd::max_angular_velocity;
 
-  if (!is_scout_mini_) {
-    if (linear_vel < ScoutCmdLimits::min_linear_velocity)
-      linear_vel = ScoutCmdLimits::min_linear_velocity;
-    if (linear_vel > ScoutCmdLimits::max_linear_velocity)
-      linear_vel = ScoutCmdLimits::max_linear_velocity;
-    if (angular_vel < ScoutCmdLimits::min_angular_velocity)
-      angular_vel = ScoutCmdLimits::min_angular_velocity;
-    if (angular_vel > ScoutCmdLimits::max_angular_velocity)
-      angular_vel = ScoutCmdLimits::max_angular_velocity;
-
-    std::lock_guard<std::mutex> guard(motion_cmd_mutex_);
-    current_motion_cmd_.linear_velocity = linear_vel;
-    current_motion_cmd_.angular_velocity = angular_vel;
-    current_motion_cmd_.lateral_velocity = lateral_velocity;
-    current_motion_cmd_.fault_clear_flag = fault_clr_flag;
-  } else {
-    if (linear_vel < ScoutMiniCmdLimits::min_linear_velocity)
-      linear_vel = ScoutMiniCmdLimits::min_linear_velocity;
-    if (linear_vel > ScoutMiniCmdLimits::max_linear_velocity)
-      linear_vel = ScoutMiniCmdLimits::max_linear_velocity;
-    if (angular_vel < ScoutMiniCmdLimits::min_angular_velocity)
-      angular_vel = ScoutMiniCmdLimits::min_angular_velocity;
-    if (angular_vel > ScoutMiniCmdLimits::max_angular_velocity)
-      angular_vel = ScoutMiniCmdLimits::max_angular_velocity;
-
-    std::lock_guard<std::mutex> guard(motion_cmd_mutex_);
-    current_motion_cmd_.linear_velocity = linear_vel;
-    current_motion_cmd_.angular_velocity = angular_vel;
-    current_motion_cmd_.lateral_velocity = lateral_velocity;
-    current_motion_cmd_.fault_clear_flag = fault_clr_flag;
-  }
-
-
+  std::lock_guard<std::mutex> guard(motion_cmd_mutex_);
+  current_motion_cmd_.linear_velocity = linear_vel;
+  current_motion_cmd_.angular_velocity = angular_vel;
 
   FeedCmdTimeoutWatchdog();
 }
 
-void ScoutBase::SetLightCommand(const ScoutLightCmd &cmd) {
+void BunkerBase::SetLightCommand(const BunkerLightCmd &cmd) {
   static uint8_t light_cmd_count = 0;
   SendLightCmd(cmd, light_cmd_count++);
 }
 
-void ScoutBase::DisableLightCmdControl() {
+void BunkerBase::DisableLightCmdControl() {
   static uint8_t light_cmd_count = 0;
-  ScoutLightCmd cmd;
+  BunkerLightCmd cmd;
   cmd.enable_ctrl = 0;
   SendLightCmd(cmd, light_cmd_count++);
 }
 
-void ScoutBase::ParseCANFrame(can_frame *rx_frame) {
+void BunkerBase::ParseCANFrame(can_frame *rx_frame) {
   AgxMessage status_msg;
   DecodeCanFrame(rx_frame, &status_msg);
   NewStatusMsgReceivedCallback(status_msg);
 }
 
-void ScoutBase::NewStatusMsgReceivedCallback(const AgxMessage &msg) {
+void BunkerBase::NewStatusMsgReceivedCallback(const AgxMessage &msg) {
   // std::cout << "new status msg received" << std::endl;
-  std::lock_guard<std::mutex> guard(scout_state_mutex_);
-  UpdateScoutState(msg, scout_state_);
+  std::lock_guard<std::mutex> guard(bunker_state_mutex_);
+  UpdateBunkerState(msg, bunker_state_);
 }
 
-void ScoutBase::UpdateScoutState(const AgxMessage &status_msg,
-                                 ScoutState &state) {
+void BunkerBase::UpdateBunkerState(const AgxMessage &status_msg,
+                                 BunkerState &state) {
   switch (status_msg.type) {
     case AgxMsgSystemState: {
       // std::cout << "system status feedback received" << std::endl;
@@ -268,33 +235,7 @@ void ScoutBase::UpdateScoutState(const AgxMessage &status_msg,
           (static_cast<uint32_t>(msg.state.left_wheel.low_byte) << 8) |
           (static_cast<uint32_t>(msg.state.left_wheel.high_byte) << 16) |
           (static_cast<uint32_t>(msg.state.left_wheel.msb) << 24));
-      break;
     }
-    case AgxMsgBmsDate: {
-      // std::cout << "Odometer msg feedback received" << std::endl;
-      const BMSDateMessage &msg = status_msg.body.bms_date_msg;
-      state.SOC = msg.state.battery_SOC;
-      state.SOH = msg.state.battery_SOH;
-      state.bms_battery_voltage = static_cast<int16_t>(
-            (static_cast<uint16_t>(msg.state.battery_voltage.low_byte)) |
-            (static_cast<uint16_t>(msg.state.battery_voltage.high_byte) << 8));
-      state.battery_current = static_cast<int16_t>(
-            (static_cast<uint16_t>(msg.state.battery_current.low_byte)) |
-            (static_cast<uint16_t>(msg.state.battery_current.high_byte) << 8));
-      state.battery_temperature = static_cast<int16_t>(
-            (static_cast<uint16_t>(msg.state.battery_temperature.low_byte)) |
-            (static_cast<uint16_t>(msg.state.battery_temperature.high_byte) << 8));
-      break;
-    }
-    case AgxMsgBmsStatus: {
-      // std::cout << "Odometer msg feedback received" << std::endl;
-      const BMSStatusMessage &msg = status_msg.body.bms_status_msg;
-      state.Alarm_Status_1 = msg.state.Alarm_Status_1;
-      state.Alarm_Status_2 = msg.state.Alarm_Status_2;
-      state.Warning_Status_1 = msg.state.Warning_Status_1;
-      state.Warning_Status_2 = msg.state.Warning_Status_2;
-    }
-
   }
 }
 }  // namespace westonrobot

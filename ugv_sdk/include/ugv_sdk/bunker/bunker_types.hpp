@@ -1,5 +1,5 @@
 /*
- * scout_state.hpp
+ * bunker_state.hpp
  *
  * Created on: Jun 11, 2019 08:48
  * Description:
@@ -7,14 +7,14 @@
  * Copyright (c) 2019 Ruixiang Du (rdu)
  */
 
-#ifndef SCOUT_STATE_HPP
-#define SCOUT_STATE_HPP
+#ifndef BUNKER_STATE_HPP
+#define BUNKER_STATE_HPP
 
 #include <cstdint>
 #include <iostream>
 
 namespace westonrobot {
-struct ScoutState {
+struct BunkerState {
   enum MotorID {
     FRONT_RIGHT = 0,
     FRONT_LEFT = 1,
@@ -60,63 +60,22 @@ struct ScoutState {
   // odometer state
   double left_odometry = 0;
   double right_odometry = 0;
-
-  // BMS date
-  uint8_t SOC;
-  uint8_t SOH;
-  double bms_battery_voltage = 0.0;
-  double battery_current = 0.0;
-  double battery_temperature = 0.0;
-
-  // BMS state
-  uint8_t Alarm_Status_1;
-  uint8_t Alarm_Status_2;
-  uint8_t Warning_Status_1;
-  uint8_t Warning_Status_2;
-
 };
 
-struct ScoutMotionCmd {
-  enum class FaultClearFlag
-  {
-      NO_FAULT = 0x00,
-      BAT_UNDER_VOL = 0x01,
-      BAT_OVER_VOL = 0x02,
-      MOTOR1_COMM = 0x03,
-      MOTOR2_COMM = 0x04,
-      MOTOR3_COMM = 0x05,
-      MOTOR4_COMM = 0x06,
-      MOTOR_DRV_OVERHEAT = 0x07,
-      MOTOR_OVERCURRENT = 0x08
-  };
-
-  ScoutMotionCmd(double linear = 0.0, double angular = 0.0,
-                 FaultClearFlag fault_clr_flag = FaultClearFlag::NO_FAULT)
-      : linear_velocity(linear), angular_velocity(angular),
-        fault_clear_flag(fault_clr_flag){}
+struct BunkerMotionCmd {
+  BunkerMotionCmd(double linear = 0.0, double angular = 0.0)
+      : linear_velocity(linear), angular_velocity(angular) {}
 
   double linear_velocity;
   double angular_velocity;
-  double lateral_velocity;
-  FaultClearFlag fault_clear_flag;
 
-};
-struct ScoutCmdLimits {
   static constexpr double max_linear_velocity = 1.5;       // 1.5 m/s
   static constexpr double min_linear_velocity = -1.5;      // -1.5 m/s
-  static constexpr double max_angular_velocity = 0.5235;   // 0.5235 rad/s
-  static constexpr double min_angular_velocity = -0.5235;  // -0.5235 rad/s
+  static constexpr double max_angular_velocity = 1.0;   // 0.5235 rad/s
+  static constexpr double min_angular_velocity = -1.0;  // -0.5235 rad/s
 };
 
-struct ScoutMiniCmdLimits {
-  static constexpr double max_linear_velocity = 3.0;       // 3.0 m/s
-  static constexpr double min_linear_velocity = -3.0;      // -3.0 m/s
-  static constexpr double max_angular_velocity = 2.5235;   // 2.5235 rad/s
-  static constexpr double min_angular_velocity = -2.5235;  // -2.5235 rad/s
-  static constexpr double max_lateral_velocity = 2.0;   // 2.0 m/s
-  static constexpr double min_lateral_velocity = -2.0;  // -2.0 m/s
-};
-struct ScoutLightCmd {
+struct BunkerLightCmd {
   enum class LightMode {
     CONST_OFF = 0x00,
     CONST_ON = 0x01,
@@ -124,8 +83,8 @@ struct ScoutLightCmd {
     CUSTOM = 0x03
   };
 
-  ScoutLightCmd() = default;
-  ScoutLightCmd(LightMode f_mode, uint8_t f_value, LightMode r_mode,
+  BunkerLightCmd() = default;
+  BunkerLightCmd(LightMode f_mode, uint8_t f_value, LightMode r_mode,
                 uint8_t r_value)
       : enable_ctrl(true),
         front_mode(f_mode),
@@ -141,4 +100,4 @@ struct ScoutLightCmd {
 };
 }  // namespace westonrobot
 
-#endif /* SCOUT_STATE_HPP */
+#endif /* BUNKER_STATE_HPP */

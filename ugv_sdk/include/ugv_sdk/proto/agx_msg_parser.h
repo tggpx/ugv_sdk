@@ -38,6 +38,7 @@ typedef enum {
   AgxMsgLightCommand = 0x02,
   AgxMsgCtrlModeSelect = 0x03,
   AgxMsgFaultByteReset = 0x04,
+  AgxMsgParkModeSelect = 0x05,
   // state feedback
   AgxMsgSystemState = 0x21,
   AgxMsgMotionState = 0x22,
@@ -47,7 +48,9 @@ typedef enum {
   AgxMsgActuatorLSState = 0x26,
   AgxMsgOdometry = 0x27,
   AgxMsgVersionQuery = 0x28,
-  AgxMsgPlatformVersion = 0x29
+  AgxMsgPlatformVersion = 0x29,
+  AgxMsgBmsDate = 0x30,
+  AgxMsgBmsStatus = 0x31
 } MsgType;
 
 typedef struct {
@@ -58,6 +61,7 @@ typedef struct {
     LightCommandMessage light_command_msg;
     CtrlModeSelectMessage ctrl_mode_select_msg;
     StateResetMessage state_reset_msg;
+    ParkControlMessage park_control_msg;
     // state feedback
     SystemStateMessage system_state_msg;
     MotionStateMessage motion_state_msg;
@@ -68,6 +72,9 @@ typedef struct {
     OdometryMessage odometry_msg;
     VersionQueryMessage version_query_msg;
     PlatformVersionMessage platform_version_msg;
+    BMSDateMessage bms_date_msg;
+    BMSStatusMessage bms_status_msg;
+
   } body;
 } AgxMessage;
 #pragma pack(pop)

@@ -46,6 +46,9 @@ extern "C" {
 
 #define CAN_MSG_ODOMETRY_ID ((uint32_t)0x311)
 
+#define CAN_MSG_BMS_DATE_ID ((uint32_t)0x361)
+#define CAN_MSG_BMS_STATUES_ID ((uint32_t)0x362)
+
 #define CAN_MSG_VERSION_QUERY_ID ((uint32_t)0x411)
 #define CAN_MSG_PLATFORM_VERSION_ID ((uint32_t)0x41a)
 
@@ -155,6 +158,21 @@ typedef union {
   } cmd;
   uint8_t raw[8];
 } CtrlModeSelectMessage;
+
+typedef union {
+  struct {
+    uint8_t parking_mode;
+    uint8_t reserved0;
+    uint8_t reserved1;
+    uint8_t reserved2;
+    uint8_t reserved3;
+    uint8_t reserved4;
+    uint8_t reserved5;
+    uint8_t reserved6;
+  } cmd;
+  uint8_t raw[8];
+} ParkControlMessage;
+
 
 typedef union {
   struct {
@@ -296,6 +314,40 @@ typedef union {
   } state;
   uint8_t raw[8];
 } OdometryMessage;
+
+typedef union {
+  struct {
+    uint8_t battery_SOC;
+    uint8_t battery_SOH;
+    struct {
+      uint8_t high_byte;
+      uint8_t low_byte;
+    } battery_voltage;
+    struct {
+      uint8_t high_byte;
+      uint8_t low_byte;
+    } battery_current;
+    struct {
+      uint8_t high_byte;
+      uint8_t low_byte;
+    } battery_temperature;
+  } state;
+  uint8_t raw[8];
+} BMSDateMessage;
+
+typedef union {
+  struct {
+    uint8_t Alarm_Status_1;
+    uint8_t Alarm_Status_2;
+    uint8_t Warning_Status_1;
+    uint8_t Warning_Status_2;
+    uint8_t reserved0;
+    uint8_t reserved1;
+    uint8_t reserved2;
+    uint8_t reserved3;
+  } state;
+  uint8_t raw[8];
+} BMSStatusMessage;
 
 typedef union {
   struct {

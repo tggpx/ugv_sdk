@@ -17,6 +17,20 @@ namespace westonrobot
 {
 struct HunterState
 {
+    struct ActuatorState {
+      double motor_current = 0;  // in A
+      double motor_rpm = 0;
+      uint16_t motor_pulses = 0;
+      double motor_temperature = 0;
+
+      double driver_voltage = 0;
+      double driver_temperature = 0;
+      uint8_t driver_state = 0;
+    };
+    // motor state
+    static constexpr uint8_t motor_num = 4;
+    ActuatorState actuator_states[motor_num];
+
     struct MotorHighSpeedState
     {
         double current = 0; // in A
@@ -41,13 +55,29 @@ struct HunterState
     uint8_t set_zero_steering = 0;
 
     // motor state
-    static constexpr uint8_t motor_num = 3;
-    MotorHighSpeedState motor_hs_state[motor_num];
-    MotorLowSpeedState motor_ls_state[motor_num];
+//    static constexpr uint8_t motor_num = 3;
+//    MotorHighSpeedState motor_hs_state[motor_num];
+//    MotorLowSpeedState motor_ls_state[motor_num];
 
     // motion state
     double linear_velocity = 0;
     double steering_angle = 0;
+
+    // odometer state
+    double left_odometry = 0;
+    double right_odometry = 0;
+    // BMS date
+    uint8_t SOC;
+    uint8_t SOH;
+    double bms_battery_voltage = 0.0;
+    double battery_current = 0.0;
+    double battery_temperature = 0.0;
+
+    // BMS state
+    uint8_t Alarm_Status_1;
+    uint8_t Alarm_Status_2;
+    uint8_t Warning_Status_1;
+    uint8_t Warning_Status_2;
 };
 
 struct HunterMotionCmd

@@ -93,6 +93,18 @@ bool DecodeCanFrame(const struct can_frame *rx_frame, AgxMessage *msg) {
              rx_frame->can_dlc * sizeof(uint8_t));
       break;
     }
+    case CAN_MSG_BMS_DATE_ID: {
+      msg->type = AgxMsgBmsDate;
+      memcpy(msg->body.bms_date_msg.raw, rx_frame->data,
+             rx_frame->can_dlc * sizeof(uint8_t));
+      break;
+    }
+    case CAN_MSG_BMS_STATUES_ID: {
+      msg->type = AgxMsgBmsStatus;
+      memcpy(msg->body.bms_status_msg.raw, rx_frame->data,
+             rx_frame->can_dlc * sizeof(uint8_t));
+      break;
+    }
     default:
       break;
   }
@@ -201,6 +213,12 @@ void EncodeCanFrame(const AgxMessage *msg, struct can_frame *tx_frame) {
       tx_frame->can_dlc = 8;
       memcpy(tx_frame->data, msg->body.actuator_ls_state_msg.data.raw,
              tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgParkModeSelect: {
+      tx_frame->can_id = CAN_MSG_PARK_COMMAND_ID;
+      tx_frame->can_dlc = 8;
+      memcpy(tx_frame->data, msg->body.park_control_msg.raw, tx_frame->can_dlc);
       break;
     }
     default:

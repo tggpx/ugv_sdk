@@ -23,33 +23,29 @@ void HunterBase::SendRobotCmd() {
 
 void HunterBase::SendMotionCmd(uint8_t count) {
   // motion control message
-  HunterMessage m_msg;
-  m_msg.type = HunterMotionControlMsg;
+  AgxMessage m_msg;
+  m_msg.type = AgxMsgMotionCommand;
+  memset(m_msg.body.motion_command_msg.raw, 0, 8);
   /*if (can_connected_)
     m_msg.body.motion_control_msg.data.cmd.control_mode = CTRL_MODE_CMD_CAN;
   else if (serial_connected_)
     m_msg.body.motion_cmd_msg.data.cmd.control_mode = CTRL_MODE_CMD_UART*/
   ;
   motion_cmd_mutex_.lock();
-  m_msg.body.motion_control_msg.data.cmd.linear_velocity_cmd.high_byte =
+  m_msg.body.motion_command_msg.cmd.linear_velocity.high_byte =
       current_motion_cmd_.linear_velocity_height_byte;
-  m_msg.body.motion_control_msg.data.cmd.linear_velocity_cmd.low_byte =
+  m_msg.body.motion_command_msg.cmd.linear_velocity.low_byte =
       current_motion_cmd_.linear_velocity_low_byte;
-  m_msg.body.motion_control_msg.data.cmd.angular_velocity_cmd.high_byte =
+  m_msg.body.motion_command_msg.cmd.steering_angle.high_byte =
       current_motion_cmd_.angular_velocity_height_byte;
-  m_msg.body.motion_control_msg.data.cmd.angular_velocity_cmd.low_byte =
+  m_msg.body.motion_command_msg.cmd.steering_angle.low_byte =
       current_motion_cmd_.angular_velocity_low_byte;
   motion_cmd_mutex_.unlock();
-
-  m_msg.body.motion_control_msg.data.cmd.reserved0 = 0;
-  m_msg.body.motion_control_msg.data.cmd.reserved1 = 0;
-  m_msg.body.motion_control_msg.data.cmd.reserved2 = 0;
-  m_msg.body.motion_control_msg.data.cmd.reserved3 = 0;
 
   // send to can bus
   if (can_connected_) {
     can_frame m_frame;
-    EncodeHunterMsgToCAN(&m_msg, &m_frame);
+    EncodeCanFrame(&m_msg, &m_frame);
     can_if_->SendFrame(m_frame);
   }
 }
@@ -80,61 +76,56 @@ void HunterBase::SetMotionCommand(
   current_motion_cmd_.linear_velocity_low_byte =
       static_cast<int16_t>(linear_vel * 1000) & 0xff;
   current_motion_cmd_.angular_velocity_height_byte =
-      static_cast<int16_t>(angular_vel * 1000) >> 8;
+      static_cast<int16_t>(steering_angle * 1000) >> 8;
   current_motion_cmd_.angular_velocity_low_byte =
-      static_cast<int16_t>(angular_vel * 1000) & 0xff;
+      static_cast<int16_t>(steering_angle * 1000) & 0xff;
   current_motion_cmd_.fault_clear_flag = fault_clr_flag;
 
   FeedCmdTimeoutWatchdog();
 }
 
 void HunterBase::SendModeCtl() {
-  HunterMessage m_msg;
-  m_msg.type = HunterControlModeMsg;
-  mode_cmd_mutex_.lock();
-  m_msg.body.mode_cmd_msg.data.cmd.mode_control = 0x01;
-  mode_cmd_mutex_.unlock();
-  m_msg.body.mode_cmd_msg.data.cmd.reserved0 = 0;
-  m_msg.body.mode_cmd_msg.data.cmd.reserved1 = 0;
-  m_msg.body.mode_cmd_msg.data.cmd.reserved2 = 0;
-  m_msg.body.mode_cmd_msg.data.cmd.reserved3 = 0;
-  m_msg.body.mode_cmd_msg.data.cmd.reserved4 = 0;
-  m_msg.body.mode_cmd_msg.data.cmd.reserved5 = 0;
-  m_msg.body.mode_cmd_msg.data.cmd.reserved6 = 0;
+  AgxMessage m_msg;
+  m_msg.type = AgxMsgCtrlModeSelect;
+  memset(m_msg.body.ctrl_mode_select_msg.raw, 0, 8);
+  m_msg.body.ctrl_mode_select_msg.cmd.control_mode = CTRL_MODE_CMD_CAN;
+
   if (can_connected_) {
     // send to can bus
     can_frame m_frame;
-    EncodeHunterMsgToCAN(&m_msg, &m_frame);
+    EncodeCanFrame(&m_msg, &m_frame);
     can_if_->SendFrame(m_frame);
   } else {
   }
 }
 
 void HunterBase::SetParkMode() {
-  HunterMessage m_msg;
-  m_msg.type = HunterParkControlMsg;
+  AgxMessage m_msg;
+  m_msg.type = AgxMsgParkModeSelect;
   bool flag = current_motion_cmd_.linear_velocity_height_byte ||
-              current_motion_cmd_.linear_velocity_low_byte;
+              current_motion_cmd_.linear_velocity_low_byte  ||
+              current_motion_cmd_.angular_velocity_height_byte  ||
+              current_motion_cmd_.angular_velocity_low_byte;
   if (flag) {
     pack_mode_cmd_mutex_.lock();
-    m_msg.body.park_control_msg.data.cmd.packing_mode = 0x00;
+    m_msg.body.park_control_msg.cmd.parking_mode = 0x00;
     pack_mode_cmd_mutex_.unlock();
   } else {
     pack_mode_cmd_mutex_.lock();
-    m_msg.body.park_control_msg.data.cmd.packing_mode = 0x01;
+    m_msg.body.park_control_msg.cmd.parking_mode = 0x01;
     pack_mode_cmd_mutex_.unlock();
   }
-  m_msg.body.park_control_msg.data.cmd.reserved0 = 0;
-  m_msg.body.park_control_msg.data.cmd.reserved1 = 0;
-  m_msg.body.park_control_msg.data.cmd.reserved2 = 0;
-  m_msg.body.park_control_msg.data.cmd.reserved3 = 0;
-  m_msg.body.park_control_msg.data.cmd.reserved4 = 0;
-  m_msg.body.park_control_msg.data.cmd.reserved5 = 0;
-  m_msg.body.park_control_msg.data.cmd.reserved6 = 0;
+  m_msg.body.park_control_msg.cmd.reserved0 = 0;
+  m_msg.body.park_control_msg.cmd.reserved1 = 0;
+  m_msg.body.park_control_msg.cmd.reserved2 = 0;
+  m_msg.body.park_control_msg.cmd.reserved3 = 0;
+  m_msg.body.park_control_msg.cmd.reserved4 = 0;
+  m_msg.body.park_control_msg.cmd.reserved5 = 0;
+  m_msg.body.park_control_msg.cmd.reserved6 = 0;
   if (can_connected_) {
     // send to can bus
     can_frame m_frame;
-    EncodeHunterMsgToCAN(&m_msg, &m_frame);
+    EncodeCanFrame(&m_msg, &m_frame);
     can_if_->SendFrame(m_frame);
   } else {
   }
@@ -142,98 +133,109 @@ void HunterBase::SetParkMode() {
 
 void HunterBase::ParseCANFrame(can_frame *rx_frame) {
   // update robot state with new frame
-  HunterMessage status_msg;
-  DecodeHunterMsgFromCAN(rx_frame, &status_msg);
+  AgxMessage status_msg;
+  DecodeCanFrame(rx_frame, &status_msg);
   NewStatusMsgReceivedCallback(status_msg);
 }
 
-void HunterBase::NewStatusMsgReceivedCallback(const HunterMessage &msg) {
+void HunterBase::NewStatusMsgReceivedCallback(const AgxMessage &msg) {
   // std::cout << "new status msg received" << std::endl;
   std::lock_guard<std::mutex> guard(hunter_state_mutex_);
   UpdateHunterState(msg, hunter_state_);
 }
 
-void HunterBase::UpdateHunterState(const HunterMessage &status_msg,
+void HunterBase::UpdateHunterState(const AgxMessage &status_msg,
                                    HunterState &state) {
   switch (status_msg.type) {
-    case HunterMotionStatusMsg: {
+    case AgxMsgSystemState: {
+      // std::cout << "system status feedback received" << std::endl;
+      const SystemStateMessage &msg = status_msg.body.system_state_msg;
+      state.control_mode = msg.state.control_mode;
+      state.base_state = msg.state.vehicle_state;
+      state.battery_voltage =
+          (static_cast<uint16_t>(msg.state.battery_voltage.low_byte) |
+           static_cast<uint16_t>(msg.state.battery_voltage.high_byte) << 8) /
+          10.0;
+      state.fault_code = msg.state.fault_code;
+      break;
+    }
+    case AgxMsgMotionState: {
       // std::cout << "motion control feedback received" << std::endl;
-      const MotionStatusMessage &msg = status_msg.body.motion_status_msg;
+      const MotionStateMessage &msg = status_msg.body.motion_state_msg;
       state.linear_velocity =
           static_cast<int16_t>(
-              static_cast<uint16_t>(msg.data.status.linear_velocity.low_byte) |
-              static_cast<uint16_t>(msg.data.status.linear_velocity.high_byte)
-                  << 8) /
+              static_cast<uint16_t>(msg.state.linear_velocity.low_byte) |
+              static_cast<uint16_t>(msg.state.linear_velocity.high_byte) << 8) /
           1000.0;
       state.steering_angle =
           static_cast<int16_t>(
-              static_cast<uint16_t>(msg.data.status.angular_velocity.low_byte) |
-              static_cast<uint16_t>(msg.data.status.angular_velocity.high_byte)
+              static_cast<uint16_t>(msg.state.angular_velocity.low_byte) |
+              static_cast<uint16_t>(msg.state.angular_velocity.high_byte)
                   << 8) /
           1000.0;
       break;
     }
-    case HunterSystemStatusMsg: {
-      // std::cout << "system status feedback received" << std::endl;
-      const SystemStatusMessage &msg = status_msg.body.system_status_msg;
-      state.control_mode = msg.data.status.control_mode;
-      state.park_mode = msg.data.status.park_mode;
-      state.base_state = msg.data.status.base_state;
-      state.battery_voltage =
-          (static_cast<uint16_t>(msg.data.status.battery_voltage.low_byte) |
-           static_cast<uint16_t>(msg.data.status.battery_voltage.high_byte)
-               << 8) /
-          10.0;
-      state.fault_code =
-          (static_cast<uint16_t>(msg.data.status.fault_code.low_byte) |
-           static_cast<uint16_t>(msg.data.status.fault_code.high_byte) << 8);
-      break;
-    }
-    case HunterMotorDriverHeightSpeedStatusMsg: {
-      // std::cout << "motor driver height speed feedback received" <<
-      // std::endl;
-      const MotorDriverHeightSpeedStatusMessage &msg =
-          status_msg.body.motor_driver_height_speed_status_msg;
-      for (int i = 0; i < HunterState::motor_num; ++i) {
-        state.motor_hs_state[msg.motor_id].current =
-            (static_cast<uint16_t>(msg.data.status.current.low_byte) |
-             static_cast<uint16_t>(msg.data.status.current.high_byte) << 8) /
-            10.0;
-        state.motor_hs_state[msg.motor_id].rpm = static_cast<int16_t>(
-            static_cast<uint16_t>(msg.data.status.rpm.low_byte) |
-            static_cast<uint16_t>(msg.data.status.rpm.high_byte) << 8);
-        state.motor_hs_state[msg.motor_id].motor_pose = static_cast<int32_t>(
-            static_cast<uint32_t>(msg.data.status.moter_pose.lowest) |
-            static_cast<uint32_t>(msg.data.status.moter_pose.sec_lowest) << 8 |
-            static_cast<uint32_t>(msg.data.status.moter_pose.sec_heighest)
-                << 16 |
-            static_cast<uint32_t>(msg.data.status.moter_pose.heighest) << 24);
-      }
-      break;
-    }
-    case HunterMotorDriverLowSpeedStatusMsg: {
-      // std::cout << "motor driver low speed feedback received" << std::endl;
-      const MotorDriverLowSpeedStatusMessage &msg =
-          status_msg.body.motor_driver_low_speed_status_msg;
-      for (int i = 0; i < HunterState::motor_num; ++i) {
-        state.motor_ls_state[msg.motor_id].driver_voltage =
-            (static_cast<uint16_t>(msg.data.status.driver_voltage.low_byte) |
-             static_cast<uint16_t>(msg.data.status.driver_voltage.high_byte)
+    case AgxMsgActuatorLSState: {
+      // std::cout << "actuator ls feedback received" << std::endl;
+      const ActuatorLSStateMessage &msg = status_msg.body.actuator_ls_state_msg;
+      for (int i = 0; i < 2; ++i) {
+        state.actuator_states[msg.motor_id].driver_voltage =
+            (static_cast<uint16_t>(msg.data.state.driver_voltage.low_byte) |
+             static_cast<uint16_t>(msg.data.state.driver_voltage.high_byte)
                  << 8) /
             10.0;
-        state.motor_ls_state[msg.motor_id]
+        state.actuator_states[msg.motor_id]
             .driver_temperature = static_cast<int16_t>(
-            static_cast<uint16_t>(msg.data.status.driver_temperature.low_byte) |
-            static_cast<uint16_t>(msg.data.status.driver_temperature.high_byte)
+            static_cast<uint16_t>(msg.data.state.driver_temperature.low_byte) |
+            static_cast<uint16_t>(msg.data.state.driver_temperature.high_byte)
                 << 8);
-        state.motor_ls_state[msg.motor_id].motor_temperature =
-            msg.data.status.motor_temperature;
-        state.motor_ls_state[msg.motor_id].driver_state =
-            msg.data.status.driver_status;
+        state.actuator_states[msg.motor_id].motor_temperature =
+            msg.data.state.motor_temperature;
+        state.actuator_states[msg.motor_id].driver_state =
+            msg.data.state.driver_state;
       }
-    }
-    default:
       break;
+    }
+    case AgxMsgOdometry: {
+      // std::cout << "Odometer msg feedback received" << std::endl;
+      const OdometryMessage &msg = status_msg.body.odometry_msg;
+      state.right_odometry = static_cast<int32_t>(
+          (static_cast<uint32_t>(msg.state.right_wheel.lsb)) |
+          (static_cast<uint32_t>(msg.state.right_wheel.low_byte) << 8) |
+          (static_cast<uint32_t>(msg.state.right_wheel.high_byte) << 16) |
+          (static_cast<uint32_t>(msg.state.right_wheel.msb) << 24));
+      state.left_odometry = static_cast<int32_t>(
+          (static_cast<uint32_t>(msg.state.left_wheel.lsb)) |
+          (static_cast<uint32_t>(msg.state.left_wheel.low_byte) << 8) |
+          (static_cast<uint32_t>(msg.state.left_wheel.high_byte) << 16) |
+          (static_cast<uint32_t>(msg.state.left_wheel.msb) << 24));
+      break;
+    }
+    case AgxMsgBmsDate: {
+      const BMSDateMessage &msg = status_msg.body.bms_date_msg;
+      state.SOC = msg.state.battery_SOC;
+      state.SOH = msg.state.battery_SOH;
+      state.bms_battery_voltage = static_cast<int16_t>(
+            (static_cast<uint16_t>(msg.state.battery_voltage.low_byte)) |
+            (static_cast<uint16_t>(msg.state.battery_voltage.high_byte) << 8)) / 100.0;
+
+      state.battery_current = static_cast<int16_t>(
+            static_cast<uint16_t>(msg.state.battery_current.low_byte) |
+            static_cast<uint16_t>(msg.state.battery_current.high_byte) << 8) / 10.0;
+      //std::cout << state.bms_battery_voltage <<std::endl;
+
+      state.battery_temperature = static_cast<int16_t>(
+            (static_cast<uint16_t>(msg.state.battery_temperature.low_byte)) |
+            (static_cast<uint16_t>(msg.state.battery_temperature.high_byte) << 8)) / 10.0;
+      break;
+    }
+    case AgxMsgBmsStatus: {
+      const BMSStatusMessage &msg = status_msg.body.bms_status_msg;
+      state.Alarm_Status_1 = msg.state.Alarm_Status_1;
+      state.Alarm_Status_2 = msg.state.Alarm_Status_2;
+      state.Warning_Status_1 = msg.state.Warning_Status_1;
+      state.Warning_Status_2 = msg.state.Warning_Status_2;
+    }
   }
 }
 }  // namespace westonrobot
