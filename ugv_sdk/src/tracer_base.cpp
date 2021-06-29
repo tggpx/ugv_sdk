@@ -15,8 +15,8 @@
 namespace westonrobot {
 void TracerBase::SendRobotCmd() {
   static uint8_t cmd_count = 0;
-  //   EnableCommandedMode();
   if (can_connected_) {
+    EnableCommandedMode();
     SendMotionCmd(cmd_count++);
   }
 }
