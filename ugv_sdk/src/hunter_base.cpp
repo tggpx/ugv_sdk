@@ -157,6 +157,7 @@ void HunterBase::UpdateHunterState(const AgxMessage &status_msg,
            static_cast<uint16_t>(msg.state.battery_voltage.high_byte) << 8) /
           10.0;
       state.fault_code = msg.state.fault_code;
+      state.park_mode = msg.state.park_mode;
       break;
     }
     case AgxMsgMotionState: {
@@ -167,10 +168,11 @@ void HunterBase::UpdateHunterState(const AgxMessage &status_msg,
               static_cast<uint16_t>(msg.state.linear_velocity.low_byte) |
               static_cast<uint16_t>(msg.state.linear_velocity.high_byte) << 8) /
           1000.0;
+      //std::cout << state.linear_velocity << std::endl;
       state.steering_angle =
           static_cast<int16_t>(
-              static_cast<uint16_t>(msg.state.angular_velocity.low_byte) |
-              static_cast<uint16_t>(msg.state.angular_velocity.high_byte)
+              static_cast<uint16_t>(msg.state.steering_angle.low_byte) |
+              static_cast<uint16_t>(msg.state.steering_angle.high_byte)
                   << 8) /
           1000.0;
       break;
@@ -193,6 +195,27 @@ void HunterBase::UpdateHunterState(const AgxMessage &status_msg,
             msg.data.state.motor_temperature;
         state.actuator_states[msg.motor_id].driver_state =
             msg.data.state.driver_state;
+      }
+      break;
+    }
+    case AgxMsgActuatorHSState: {
+      // std::cout << "actuator ls feedback received" << std::endl;
+      const ActuatorHSStateMessage &msg = status_msg.body.actuator_hs_state_msg;
+      for (int i = 0; i < 2; ++i) {
+        state.actuator_states[msg.motor_id].motor_rpm =
+            (static_cast<uint16_t>(msg.data.state.rpm.low_byte) |
+             static_cast<uint16_t>(msg.data.state.rpm.high_byte)
+                 << 8);
+        state.actuator_states[msg.motor_id]
+            .motor_current = static_cast<int16_t>(
+            static_cast<uint16_t>(msg.data.state.current.low_byte) |
+            static_cast<uint16_t>(msg.data.state.current.high_byte)
+                << 8) / 10.0;
+        state.actuator_states[msg.motor_id].motor_pulses = static_cast<int32_t>(
+            (static_cast<uint32_t>(msg.data.state.pulse_count.lsb)) |
+            (static_cast<uint32_t>(msg.data.state.pulse_count.low_byte) << 8) |
+            (static_cast<uint32_t>(msg.data.state.pulse_count.high_byte) << 16) |
+            (static_cast<uint32_t>(msg.data.state.pulse_count.msb) << 24));
       }
       break;
     }

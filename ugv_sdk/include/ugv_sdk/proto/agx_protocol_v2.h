@@ -199,7 +199,7 @@ typedef union {
     } battery_voltage;
     uint8_t fault_code;
     uint8_t reserved0;
-    uint8_t reserved1;
+    uint8_t park_mode;
     uint8_t count;
   } state;
   uint8_t raw[8];
