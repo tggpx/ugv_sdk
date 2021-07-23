@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
     // }
     if (count < 100) {
       std::cout << "Motor: 0.2, 0" << std::endl;
-      scout.SetMotionCommand(0.2, 0.0);
+      scout.SetMotionCommand(0.2, 0.0,0.0);
     }
 
     auto state = scout.GetScoutState();
