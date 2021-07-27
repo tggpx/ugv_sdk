@@ -24,6 +24,16 @@ struct HunterState
         double temperature = 0;
     };
 
+    struct ActuatorState {
+      double motor_current = 0;  // in A
+      double motor_rpm = 0;
+      double motor_temperature = 0;
+      double motor_pulses = 0;
+      double driver_state = 0;
+      double driver_voltage = 0;
+      double driver_temperature = 0;
+    };
+
     // base state
     uint8_t base_state = 0;
     uint8_t control_mode = 0;
@@ -34,7 +44,8 @@ struct HunterState
 
     // motor state
     static constexpr uint8_t motor_num = 3;
-    MotorState motor_states[motor_num];
+    //MotorState motor_states[motor_num];
+    ActuatorState actuator_states[motor_num];
 
     // motion state
     double linear_velocity = 0;

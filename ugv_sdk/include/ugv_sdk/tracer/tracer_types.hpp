@@ -24,6 +24,12 @@ struct TracerState
         //double temperature = 0;
     };
 
+    struct ActuatorState {
+      double motor_current = 0;  // in A
+      double motor_rpm = 0;
+      double motor_temperature = 0;
+    };
+
     struct LightState
     {
         uint8_t mode = 0;
@@ -37,7 +43,8 @@ struct TracerState
     double battery_voltage = 0.0;
 
     // motor state
-    MotorState motor_states[2];
+    //MotorState motor_states[2];
+    ActuatorState actuator_states[2];
 
     // light state
     bool light_control_enabled = false;
@@ -48,8 +55,8 @@ struct TracerState
     double angular_velocity = 0;
 
     //odometer state
-    double left_odomter = 0;
-    double right_odomter = 0;
+    double left_odometry = 0;
+    double right_odometry = 0;
 };
 struct UartTracerState
 {

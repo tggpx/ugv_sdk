@@ -26,6 +26,10 @@ struct ScoutState {
     double motor_current = 0;  // in A
     double motor_rpm = 0;
     double motor_temperature = 0;
+    double motor_pulses = 0;
+    double driver_state = 0;
+    double driver_voltage = 0;
+    double driver_temperature = 0;
   };
 
   struct LightState {
