@@ -44,7 +44,7 @@ struct HunterState
 
     // motor state
     static constexpr uint8_t motor_num = 3;
-    //MotorState motor_states[motor_num];
+    MotorState motor_states[motor_num];
     ActuatorState actuator_states[motor_num];
 
     // motion state
