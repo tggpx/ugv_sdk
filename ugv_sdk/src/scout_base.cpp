@@ -151,6 +151,7 @@ void ScoutBase::SetMotionCommand(double linear_vel, double lateral_velocity, dou
 
 void ScoutBase::SetLightCommand(const ScoutLightCmd &cmd) {
   static uint8_t light_cmd_count = 0;
+  EnableCommandedMode();
   SendLightCmd(cmd, light_cmd_count++);
 }
 
@@ -158,6 +159,7 @@ void ScoutBase::DisableLightCmdControl() {
   static uint8_t light_cmd_count = 0;
   ScoutLightCmd cmd;
   cmd.enable_ctrl = 0;
+  EnableCommandedMode();
   SendLightCmd(cmd, light_cmd_count++);
 }
 
