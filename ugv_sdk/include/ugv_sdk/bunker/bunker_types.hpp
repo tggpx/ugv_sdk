@@ -32,6 +32,16 @@ struct BunkerState
         double temperature = 0;
     };
 
+    struct ActuatorState {
+      double motor_current = 0;  // in A
+      double motor_rpm = 0;
+      double motor_temperature = 0;
+      double motor_pulses = 0;
+      double driver_state = 0;
+      double driver_voltage = 0;
+      double driver_temperature = 0;
+    };
+
     struct LightState
     {
         uint8_t mode = 0;
@@ -47,6 +57,7 @@ struct BunkerState
     // motor state
     static constexpr uint8_t motor_num = 4;
     MotorState motor_states[motor_num];
+    ActuatorState actuator_states[motor_num];
 
     // light state
     bool light_control_enabled = false;
