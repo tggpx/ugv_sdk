@@ -128,6 +128,7 @@ struct ScoutLightCmd {
         rear_mode(r_mode),
         rear_custom_value(r_value) {}
 
+  bool enable_ctrl;
   LightMode front_mode;
   uint8_t front_custom_value;
   LightMode rear_mode;
