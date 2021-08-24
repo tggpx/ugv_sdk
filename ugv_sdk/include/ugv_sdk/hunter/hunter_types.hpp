@@ -38,6 +38,7 @@ struct HunterState
     uint8_t base_state = 0;
     uint8_t control_mode = 0;
     uint16_t fault_code = 0;
+    uint8_t park_mode = 1;
     double battery_voltage = 0.0;
 
     uint8_t set_zero_steering = 0;
@@ -50,6 +51,19 @@ struct HunterState
     // motion state
     double linear_velocity = 0;
     double steering_angle = 0;
+
+    // BMS date
+        uint8_t SOC;
+        uint8_t SOH;
+        double bms_battery_voltage = 0.0;
+        double battery_current = 0.0;
+        double battery_temperature = 0.0;
+
+        // BMS state
+        uint8_t Alarm_Status_1;
+        uint8_t Alarm_Status_2;
+        uint8_t Warning_Status_1;
+        uint8_t Warning_Status_2;
 };
 
 struct HunterMotionCmd
