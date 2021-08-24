@@ -31,7 +31,7 @@ class HunterBase : public MobileBase {
   HunterState GetHunterState();
 
   // motion control
-  void SetMotionCommand(double linear_vel, double angular_vel,
+  void SetMotionCommand(double linear_vel,
                         double steering_angle,
                         HunterMotionCmd::FaultClearFlag fault_clr_flag =
                             HunterMotionCmd::FaultClearFlag::NO_FAULT);

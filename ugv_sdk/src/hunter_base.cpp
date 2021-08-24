@@ -56,7 +56,7 @@ HunterState HunterBase::GetHunterState() {
 }
 
 void HunterBase::SetMotionCommand(
-    double linear_vel, double angular_vel, double steering_angle,
+    double linear_vel, double steering_angle,
     HunterMotionCmd::FaultClearFlag fault_clr_flag) {
   // make sure cmd thread is started before attempting to send commands
   if (!cmd_thread_started_) StartCmdThread();
