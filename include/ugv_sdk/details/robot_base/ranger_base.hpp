@@ -42,8 +42,7 @@ class RangerBase : public AgilexBase<ProtocolV2Parser>, public RangerInterface {
 
   void SetLightCommand(LightMode f_mode, uint8_t f_value, LightMode r_mode,
                        uint8_t r_value) override {
-    AgilexBase<ProtocolV2Parser>::SendLightCommand(f_mode, f_value, r_mode,
-                                                   r_value);
+    AgilexBase<ProtocolV2Parser>::SendLightCommand(f_mode);
   }
 
   void SetMotionMode(uint8_t mode) { AgilexBase::SetMotionMode(mode); }

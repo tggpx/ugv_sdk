@@ -41,9 +41,9 @@ class ScoutBase : public AgilexBase<ParserType>, public ScoutInterface {
   }
 
   void SetLightCommand(LightMode f_mode, uint8_t f_value,
-                       LightMode r_mode = LightMode::CONST_ON,
+                       LightMode r_mode = LightMode::LIGHT_DISABLE,
                        uint8_t r_value = 0) override {
-    AgilexBase<ParserType>::SendLightCommand(f_mode, f_value, r_mode, r_value);
+    AgilexBase<ParserType>::SendLightCommand(f_mode);
   }
 
   // get robot state

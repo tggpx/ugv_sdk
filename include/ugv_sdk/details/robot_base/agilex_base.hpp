@@ -97,16 +97,11 @@ class AgilexBase : public RobotCommonInterface {
   }
 
   // one-shot light command
-  void SendLightCommand(LightMode front_mode, uint8_t front_custom_value,
-                        LightMode rear_mode, uint8_t rear_custom_value) {
+  void SendLightCommand(LightMode mode) {
     if (can_connected_) {
       AgxMessage msg;
       msg.type = AgxMsgLightCommand;
-      msg.body.light_command_msg.enable_cmd_ctrl = true;
-      msg.body.light_command_msg.front_light.mode = front_mode;
-      msg.body.light_command_msg.front_light.custom_value = front_custom_value;
-      msg.body.light_command_msg.rear_light.mode = rear_mode;
-      msg.body.light_command_msg.rear_light.custom_value = rear_custom_value;
+      msg.body.light_command_msg.mode = mode;
 
       // send to can bus
       can_frame frame;
@@ -119,7 +114,7 @@ class AgilexBase : public RobotCommonInterface {
       AgxMessage msg;
       msg.type = AgxMsgLightCommand;
 
-      msg.body.light_command_msg.enable_cmd_ctrl = false;
+      msg.body.light_command_msg.mode = LIGHT_DISABLE;
 
       // send to can bus
       can_frame frame;
@@ -134,6 +129,48 @@ class AgilexBase : public RobotCommonInterface {
       msg.type = AgxMsgSetMotionModeCommand;
       msg.body.motion_mode_msg.motion_mode = mode;
 
+      // send to can bus
+      can_frame frame;
+      if (parser_.EncodeMessage(&msg, &frame)) can_->SendFrame(frame);
+    }
+  }
+
+  // sick mode change
+  void SetSickMode(uint8_t mode) 
+  {
+    if (can_connected_) {
+      AgxMessage msg;
+      msg.type = AgxMsgSetSickCommand;
+      msg.body.sick_command_msg.control_mode = mode;
+
+      // send to can bus
+      can_frame frame;
+      if (parser_.EncodeMessage(&msg, &frame)) can_->SendFrame(frame);
+    }
+  }
+
+  // on-shot lift command
+  void setLiftCommand(uint8_t cmd)
+  {
+    if (can_connected_) {
+      AgxMessage msg;
+      msg.type = AgxMsgSetLiftCommand;
+      msg.body.sick_command_msg.control_mode = cmd;
+
+      // send to can bus
+      can_frame frame;
+      if (parser_.EncodeMessage(&msg, &frame)) can_->SendFrame(frame);
+    }
+  }
+
+  // on-shot peripherals command
+  void setPeripheralsCommand(uint8_t cmd) 
+  {
+    if (can_connected_) {
+      AgxMessage msg;
+      msg.type = AgxMsgPeripheralsCommand;
+      msg.body.peripherals_command_msg.control_mode = cmd;
+      
       // send to can bus
       can_frame frame;
       if (parser_.EncodeMessage(&msg, &frame)) can_->SendFrame(frame);
@@ -241,6 +278,21 @@ class AgilexBase : public RobotCommonInterface {
         // std::cout << "rc feedback received" << std::endl;
         core_state_msgs_.time_stamp = AgxMsgRefClock::now();
         core_state_msgs_.rc_state = status_msg.body.rc_state_msg;
+        break;
+      }
+      case AgxMsgLiftState: {
+        core_state_msgs_.time_stamp = AgxMsgRefClock::now();
+        core_state_msgs_.lift_state = status_msg.body.lift_state_msg;
+        break;
+      }
+      case AgxMsgSickState: {
+        core_state_msgs_.time_stamp = AgxMsgRefClock::now();
+        core_state_msgs_.sick_state = status_msg.body.sick_state_msg;
+        break;
+      }
+      case AgxMsgPeripheralsState: {
+        core_state_msgs_.time_stamp = AgxMsgRefClock::now();
+        core_state_msgs_.peripherals_state = status_msg.body.peripherals_state_msg;
         break;
       }
       default:

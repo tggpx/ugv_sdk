@@ -44,17 +44,26 @@ bool DecodeCanFrameV2(const struct can_frame *rx_frame, AgxMessage *msg) {
       msg->type = AgxMsgLightCommand;
       // parse frame buffer to message
       LightCommandFrame *frame = (LightCommandFrame *)(rx_frame->data);
-      msg->body.light_command_msg.enable_cmd_ctrl =
-          (frame->enable_cmd_ctrl != 0) ? true : false;
-      msg->body.light_command_msg.front_light.mode = frame->front_mode;
-      msg->body.light_command_msg.front_light.custom_value =
-          frame->front_custom;
-      msg->body.light_command_msg.rear_light.mode = frame->rear_mode;
-      msg->body.light_command_msg.rear_light.custom_value = frame->rear_custom;
+      msg->body.light_command_msg.mode = frame->mode;
       break;
     }
     case CAN_MSG_BRAKING_COMMAND_ID: {
       msg->type = AgxMsgBrakingCommand;
+      // TODO
+      break;
+    }
+    case CAN_MSG_SET_SICK_COMMAND_ID: {
+      msg->type = AgxMsgSetSickCommand;
+      // TODO
+      break;
+    }
+    case CAN_MSG_SET_LIFT_COMMAND_ID: {
+      msg->type = AgxMsgSetLiftCommand;
+      // TODO
+      break;
+    }
+    case CAN_MSG_PERIPHERALS_COMMAND_ID: {
+      msg->type = AgxMsgPeripheralsCommand;
       // TODO
       break;
     }
@@ -69,8 +78,10 @@ bool DecodeCanFrameV2(const struct can_frame *rx_frame, AgxMessage *msg) {
                     (uint16_t)(frame->battery_voltage.high_byte) << 8) *
           0.1;
       msg->body.system_state_msg.error_code =
-          (uint16_t)(frame->error_code.low_byte) |
-          (uint16_t)(frame->error_code.high_byte) << 8;
+          (uint32_t)(frame->error_code.lsb) |
+                    (uint32_t)(frame->error_code.low_byte) << 8 |
+                    (uint32_t)(frame->error_code.high_byte) << 16 |
+                    (uint32_t)(frame->error_code.msb) << 24;
       break;
     }
     case CAN_MSG_MOTION_STATE_ID: {
@@ -97,13 +108,7 @@ bool DecodeCanFrameV2(const struct can_frame *rx_frame, AgxMessage *msg) {
     case CAN_MSG_LIGHT_STATE_ID: {
       msg->type = AgxMsgLightState;
       LightStateFrame *frame = (LightStateFrame *)(rx_frame->data);
-      msg->body.light_command_msg.enable_cmd_ctrl =
-          (frame->enable_cmd_ctrl != 0) ? true : false;
-      msg->body.light_command_msg.front_light.mode = frame->front_mode;
-      msg->body.light_command_msg.front_light.custom_value =
-          frame->front_custom;
-      msg->body.light_command_msg.rear_light.mode = frame->rear_mode;
-      msg->body.light_command_msg.rear_light.custom_value = frame->rear_custom;
+      msg->body.light_command_msg.mode = frame->mode;
       break;
     }
     case CAN_MSG_RC_STATE_ID: {
@@ -138,6 +143,25 @@ bool DecodeCanFrameV2(const struct can_frame *rx_frame, AgxMessage *msg) {
       msg->body.rc_state_msg.stick_left_v = frame->stick_left_v;
       msg->body.rc_state_msg.stick_left_h = frame->stick_left_h;
       msg->body.rc_state_msg.var_a = frame->var_a;
+      break;
+    }
+    case CAN_MSG_SICK_STATE_ID: {
+      msg->type = AgxMsgSickState;
+      SickStateFrame *frame = (SickStateFrame *)(rx_frame->data);
+      msg->body.sick_state_msg.region = frame->region_state;
+      break;
+    }
+    case CAN_MSG_LIFT_STATE_ID: {
+      msg->type = AgxMsgLiftState;
+      LiftStateFrame *frame = (LiftStateFrame *)(rx_frame->data);
+      msg->body.lift_state_msg.lift_state = frame->lift_state;
+      msg->body.lift_state_msg.lift_pos = frame->lift_pos;
+      break;
+    }
+    case CAN_MSG_PERIPHERALS_STATE_ID: {
+      msg->type = AgxMsgPeripheralsState;
+      PeripheralsStateFrame *frame = (PeripheralsStateFrame *)(rx_frame->data);
+      msg->body.peripherals_state_msg.peripherals_state = frame->peripherals_state;
       break;
     }
     case CAN_MSG_ACTUATOR1_HS_STATE_ID:
@@ -338,23 +362,7 @@ bool EncodeCanFrameV2(const AgxMessage *msg, struct can_frame *tx_frame) {
       tx_frame->can_id = CAN_MSG_LIGHT_COMMAND_ID;
       tx_frame->can_dlc = 8;
       LightCommandFrame frame;
-      if (msg->body.light_command_msg.enable_cmd_ctrl) {
-        frame.enable_cmd_ctrl = LIGHT_ENABLE_CMD_CTRL;
-        frame.front_mode = msg->body.light_command_msg.front_light.mode;
-        frame.front_custom =
-            msg->body.light_command_msg.front_light.custom_value;
-        frame.rear_mode = msg->body.light_command_msg.rear_light.mode;
-        frame.rear_custom = msg->body.light_command_msg.rear_light.custom_value;
-      } else {
-        frame.enable_cmd_ctrl = LIGHT_DISABLE_CMD_CTRL;
-        frame.front_mode = 0;
-        frame.front_custom = 0;
-        frame.rear_mode = 0;
-        frame.rear_custom = 0;
-      }
-      frame.reserved0 = 0;
-      frame.reserved1 = 0;
-      frame.count = count++;
+      frame.mode = msg->body.light_command_msg.mode;
       memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
       break;
     }
@@ -382,6 +390,54 @@ bool EncodeCanFrameV2(const AgxMessage *msg, struct can_frame *tx_frame) {
       break;
     }
 
+    case AgxMsgSetSickCommand: {
+      tx_frame->can_id = CAN_MSG_SET_SICK_COMMAND_ID;
+      tx_frame->can_dlc = 8;
+      SickCommandFrame frame;
+      frame.control_mode = msg->body.sick_command_msg.control_mode;
+      frame.reserved0 = 0;
+      frame.reserved1 = 0;
+      frame.reserved2 = 0;
+      frame.reserved3 = 0;
+      frame.reserved4 = 0;
+      frame.reserved5 = 0;
+      frame.reserved6 = 0;
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+
+    case AgxMsgSetLiftCommand: {
+      tx_frame->can_id = CAN_MSG_SET_LIFT_COMMAND_ID;
+      tx_frame->can_dlc = 8;
+      LiftCommandFrame frame;
+      frame.control_mode = msg->body.lift_command_msg.control_mode;
+      frame.reserved0 = 0;
+      frame.reserved1 = 0;
+      frame.reserved2 = 0;
+      frame.reserved3 = 0;
+      frame.reserved4 = 0;
+      frame.reserved5 = 0;
+      frame.reserved6 = 0;
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+
+    case AgxMsgPeripheralsCommand: {
+      tx_frame->can_id = CAN_MSG_PERIPHERALS_COMMAND_ID;
+      tx_frame->can_dlc = 8;
+      PeripheralsCommandFrame frame;
+      frame.control_mode = msg->body.peripherals_command_msg.control_mode;
+      frame.reserved0 = 0;
+      frame.reserved1 = 0;
+      frame.reserved2 = 0;
+      frame.reserved3 = 0;
+      frame.reserved4 = 0;
+      frame.reserved5 = 0;
+      frame.reserved6 = 0;
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+
     /***************** feedback frame ****************/
     case AgxMsgSystemState: {
       tx_frame->can_id = CAN_MSG_SYSTEM_STATE_ID;
@@ -393,10 +449,12 @@ bool EncodeCanFrameV2(const AgxMessage *msg, struct can_frame *tx_frame) {
           (uint16_t)(msg->body.system_state_msg.battery_voltage * 10);
       frame.battery_voltage.high_byte = (uint8_t)(battery >> 8);
       frame.battery_voltage.low_byte = (uint8_t)(battery & 0x00ff);
-      frame.error_code.high_byte =
-          (uint8_t)(msg->body.system_state_msg.error_code >> 8);
-      frame.error_code.low_byte =
-          (uint8_t)(msg->body.system_state_msg.error_code & 0x00ff);
+
+      frame.error_code.lsb = (uint32_t)(msg->body.system_state_msg.error_code & 0x000000ff);
+      frame.error_code.low_byte = (uint32_t)((msg->body.system_state_msg.error_code >> 8) & 0x000000ff);
+      frame.error_code.high_byte = (uint32_t)((msg->body.system_state_msg.error_code >> 16) & 0x000000ff);
+      frame.error_code.msb = (uint32_t)((msg->body.system_state_msg.error_code >> 24) & 0x000000ff);
+
       memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
       break;
     }
@@ -436,6 +494,29 @@ bool EncodeCanFrameV2(const AgxMessage *msg, struct can_frame *tx_frame) {
       tx_frame->can_dlc = 8;
       RcStateFrame frame;
       // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgSickState: {
+      tx_frame->can_id = CAN_MSG_SICK_STATE_ID;
+      tx_frame->can_dlc = 8;
+      SickStateFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgLiftState: {
+      tx_frame->can_id = CAN_MSG_LIFT_STATE_ID;
+      tx_frame->can_dlc = 8;
+      LiftStateFrame frame;
+      // TODO
+      memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
+      break;
+    }
+    case AgxMsgPeripheralsState: {
+      tx_frame->can_id = CAN_MSG_PERIPHERALS_STATE_ID;
+      tx_frame->can_dlc = 8;
+      PeripheralsStateFrame frame;
       memcpy(tx_frame->data, (uint8_t *)(&frame), tx_frame->can_dlc);
       break;
     }

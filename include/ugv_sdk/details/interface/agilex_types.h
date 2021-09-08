@@ -17,16 +17,16 @@ extern "C" {
 #include <stdint.h>
 
 typedef enum {
-  CONST_OFF = 0x00,
-  CONST_ON = 0x01,
-  BREATH = 0x02,
-  CUSTOM = 0x03
+  LIGHT_DISABLE = 0x00, // 关闭
+  LIGHT_GO_FORWARD, // 前进
+  LIGHT_GO_BACK, // 后退
+  LIGHT_TURN_LEFT, // 左转
+  LIGHT_TURN_RIGHT, // 右转
+  LIGHT_TURN_AROUND, // 原地旋转
+  LIGHT_FAULT, // 故障
+  LIGHT_IDLE,  // 空闲
+  LIGHT_WORK // 作业
 } LightMode;
-
-typedef struct {
-  LightMode mode;
-  uint8_t custom_value;
-} LightOperation;
 
 typedef enum {
   VehicleStateNormal = 0x00,

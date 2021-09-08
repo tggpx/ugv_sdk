@@ -43,12 +43,18 @@ extern "C" {
 #define CAN_MSG_LIGHT_COMMAND_ID ((uint32_t)0x121)
 #define CAN_MSG_BRAKING_COMMAND_ID ((uint32_t)0x131)
 #define CAN_MSG_SET_MOTION_MODE_ID ((uint32_t)0x141)
+#define CAN_MSG_SET_SICK_COMMAND_ID ((uint32_t)0x151) // SICK配置
+#define CAN_MSG_SET_LIFT_COMMAND_ID ((uint32_t)0x161) // 顶升机构
+#define CAN_MSG_PERIPHERALS_COMMAND_ID ((uint32_t)0x171) // 外设
 
 // state feedback group: 0x2
 #define CAN_MSG_SYSTEM_STATE_ID ((uint32_t)0x211)
+#define CAN_MSG_SICK_STATE_ID   ((uint32_t)0x212)
+#define CAN_MSG_LIFT_STATE_ID   ((uint32_t)0x213)
 #define CAN_MSG_MOTION_STATE_ID ((uint32_t)0x221)
 #define CAN_MSG_LIGHT_STATE_ID ((uint32_t)0x231)
 #define CAN_MSG_RC_STATE_ID ((uint32_t)0x241)
+#define CAN_MSG_PERIPHERALS_STATE_ID ((uint32_t)0x242)
 
 #define CAN_MSG_ACTUATOR1_HS_STATE_ID ((uint32_t)0x251)
 #define CAN_MSG_ACTUATOR2_HS_STATE_ID ((uint32_t)0x252)
@@ -147,18 +153,15 @@ typedef struct {
   struct16_t steering_angle;
 } MotionCommandFrame;
 
-#define LIGHT_ENABLE_CMD_CTRL ((uint8_t)0x01)
-#define LIGHT_DISABLE_CMD_CTRL ((uint8_t)0x00)
-
 typedef struct {
-  uint8_t enable_cmd_ctrl;
-  uint8_t front_mode;
-  uint8_t front_custom;
-  uint8_t rear_mode;
-  uint8_t rear_custom;
+  uint8_t mode;
   uint8_t reserved0;
   uint8_t reserved1;
-  uint8_t count;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+  uint8_t reserved6;
 } LightCommandFrame;
 
 typedef struct {
@@ -177,14 +180,48 @@ typedef struct {
   uint8_t reserved6;
 } SetMotionModeFrame;
 
+typedef struct 
+{
+  uint8_t control_mode;
+  uint8_t reserved0;
+  uint8_t reserved1;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+  uint8_t reserved6;
+}SickCommandFrame;
+
+typedef struct
+{
+  uint8_t control_mode;
+  uint8_t reserved0;
+  uint8_t reserved1;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+  uint8_t reserved6;
+}LiftCommandFrame;
+
+typedef struct
+{
+  uint8_t control_mode;
+  uint8_t reserved0;
+  uint8_t reserved1;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+  uint8_t reserved6;
+}PeripheralsCommandFrame;
+
 // State feedback messages
 typedef struct {
   uint8_t vehicle_state;
   uint8_t control_mode;
   struct16_t battery_voltage;
-  struct16_t error_code;
-  uint8_t reserved0;
-  uint8_t count;
+  struct32_t error_code;
 } SystemStateFrame;
 
 typedef struct {
@@ -195,14 +232,14 @@ typedef struct {
 } MotionStateFrame;
 
 typedef struct {
-  uint8_t enable_cmd_ctrl;
-  uint8_t front_mode;
-  uint8_t front_custom;
-  uint8_t rear_mode;
-  uint8_t rear_custom;
+  uint8_t mode;
   uint8_t reserved0;
   uint8_t reserved1;
-  uint8_t count;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+  uint8_t reserved6;
 } LightStateFrame;
 
 #define RC_SWA_MASK ((uint8_t)0b00000011)
@@ -248,6 +285,42 @@ typedef struct {
   uint8_t reserved0;
   uint8_t reserved1;
 } ActuatorLSStateFrame;
+
+typedef struct
+{
+  uint8_t region_state;
+  uint8_t reserved0;
+  uint8_t reserved1;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+  uint8_t reserved6;
+}SickStateFrame;
+
+typedef struct
+{
+  uint8_t lift_state;
+  uint8_t lift_pos;
+  uint8_t reserved0;
+  uint8_t reserved1;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+}LiftStateFrame;
+
+typedef struct
+{
+  uint8_t peripherals_state;
+  uint8_t reserved0;
+  uint8_t reserved1;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+  uint8_t reserved6;
+}PeripheralsStateFrame;
 
 // 0x291
 typedef struct {

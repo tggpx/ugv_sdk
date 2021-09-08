@@ -117,14 +117,14 @@ typedef struct {
 #define LIGHT_MODE_CUSTOM ((uint8_t)0x03)
 
 typedef struct {
-  uint8_t enable_cmd_ctrl;
-  uint8_t front_mode;
-  uint8_t front_custom;
-  uint8_t rear_mode;
-  uint8_t rear_custom;
+  uint8_t mode;
   uint8_t reserved0;
-  uint8_t count;
-  uint8_t checksum;
+  uint8_t reserved1;
+  uint8_t reserved2;
+  uint8_t reserved3;
+  uint8_t reserved4;
+  uint8_t reserved5;
+  uint8_t reserved6;
 } LightCommandFrame;
 
 typedef struct {

@@ -31,9 +31,7 @@ typedef struct {
 } MotionCommandMessage;
 
 typedef struct {
-  bool enable_cmd_ctrl;
-  LightOperation front_light;
-  LightOperation rear_light;
+  LightMode mode;
 } LightCommandMessage;
 
 typedef struct {
@@ -43,6 +41,19 @@ typedef struct {
 typedef struct {
   uint8_t motion_mode;
 } MotionModeCommandMessage;
+
+typedef struct {
+  uint8_t control_mode;
+}SickCommandMessage;
+
+typedef struct {
+  uint8_t control_mode;
+}LiftCommandMessage;
+
+typedef struct {
+  uint8_t control_mode;
+  
+}PeripheralsCommandMessage;
 
 // V1-only messages
 typedef struct {
@@ -76,7 +87,7 @@ typedef struct {
   VehicleState vehicle_state;
   ControlMode control_mode;
   float battery_voltage;
-  uint16_t error_code;
+  uint32_t error_code;
 } SystemStateMessage;
 
 typedef struct {
@@ -106,6 +117,19 @@ typedef struct {
   float current;
   int32_t pulse_count;
 } ActuatorHSStateMessage;
+
+typedef struct {
+  uint8_t region;
+} SickStateMessage;
+
+typedef struct {
+  uint8_t lift_state;
+  uint8_t lift_pos;
+} LiftStateMessage;
+
+typedef struct {
+  uint8_t peripherals_state;
+} PeripheralsStateMessage;
 
 #define DRIVER_STATE_INPUT_VOLTAGE_LOW_MASK ((uint8_t)0x01)
 #define DRIVER_STATE_MOTOR_OVERHEAT_MASK ((uint8_t)0x02)
@@ -273,12 +297,18 @@ typedef enum {
   AgxMsgLightCommand,
   AgxMsgBrakingCommand,
   AgxMsgSetMotionModeCommand,
+  AgxMsgSetSickCommand,
+  AgxMsgSetLiftCommand,
+  AgxMsgPeripheralsCommand,
   // state feedback
   AgxMsgSystemState,
   AgxMsgMotionState,
   AgxMsgLightState,
   AgxMsgMotionModeState,
   AgxMsgRcState,
+  AgxMsgSickState,
+  AgxMsgLiftState,
+  AgxMsgPeripheralsState,
   // actuator feedback
   AgxMsgActuatorHSState,
   AgxMsgActuatorLSState,
@@ -315,12 +345,18 @@ typedef struct {
     LightCommandMessage light_command_msg;
     BrakingCommandMessage braking_command_msg;
     MotionModeCommandMessage motion_mode_msg;
+    SickCommandMessage  sick_command_msg;
+    LiftCommandMessage  lift_command_msg;
+    PeripheralsCommandMessage peripherals_command_msg;
     // core state feedback
     SystemStateMessage system_state_msg;
     MotionStateMessage motion_state_msg;
     LightStateMessage light_state_msg;
     MotionModeStateMessage motion_mode_state_msg;
     RcStateMessage rc_state_msg;
+    SickStateMessage  sick_state_msg;
+    LiftStateMessage  lift_state_msg;
+    PeripheralsStateMessage peripherals_state_msg;
     // actuator feedback
     ActuatorHSStateMessage actuator_hs_state_msg;
     ActuatorLSStateMessage actuator_ls_state_msg;

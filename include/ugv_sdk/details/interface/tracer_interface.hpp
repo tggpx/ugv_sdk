@@ -23,6 +23,9 @@ struct TracerCoreState {
   MotionStateMessage motion_state;
   LightStateMessage light_state;
   RcStateMessage rc_state;
+  LiftStateMessage lift_state;
+  SickStateMessage sick_state;
+  PeripheralsStateMessage peripherals_state;
 };
 
 struct TracerActuatorState {

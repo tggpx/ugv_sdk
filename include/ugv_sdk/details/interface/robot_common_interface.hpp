@@ -30,6 +30,9 @@ struct CoreStateMsgGroup {
   LightStateMessage light_state;
   MotionModeStateMessage motion_mode_state;
   RcStateMessage rc_state;
+  LiftStateMessage lift_state;
+  SickStateMessage sick_state;
+  PeripheralsStateMessage peripherals_state;
 };
 
 struct ActuatorStateMsgGroup {
@@ -88,9 +91,7 @@ class RobotCommonInterface {
         "is supposed to be used.");
   };
 
-  virtual void SendLightCommand(LightMode front_mode,
-                                uint8_t front_custom_value, LightMode rear_mode,
-                                uint8_t rear_custom_value) {
+  virtual void SendLightCommand(LightMode mode) {
     throw std::runtime_error(
         "Only a derived version of this function with actual implementation "
         "is supposed to be used.");

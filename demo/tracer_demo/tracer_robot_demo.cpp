@@ -40,20 +40,20 @@ int main(int argc, char **argv) {
 
   // light control
   std::cout << "Light: const off" << std::endl;
-  tracer->SetLightCommand(CONST_OFF, 0);
+  tracer->SetLightCommand(LIGHT_WORK, 0);
   sleep(3);
   std::cout << "Light: const on" << std::endl;
-  tracer->SetLightCommand(CONST_ON, 0);
+  tracer->SetLightCommand(LIGHT_GO_FORWARD, 0);
   sleep(3);
   std::cout << "Light: breath" << std::endl;
-  tracer->SetLightCommand(BREATH, 0);
+  tracer->SetLightCommand(LIGHT_GO_BACK, 0);
   sleep(3);
   std::cout << "Light: custom 30-80" << std::endl;
-  tracer->SetLightCommand(CUSTOM, 30);
+  tracer->SetLightCommand(LIGHT_TURN_LEFT, 30);
   sleep(3);
   //   std::cout << "Light: diabled cmd control" << std::endl;
   //   scout->DisableLightControl();
-  tracer->SetLightCommand(CONST_OFF, 0);
+  tracer->SetLightCommand(LIGHT_DISABLE, 0);
 
   int count = 0;
   while (true) {
