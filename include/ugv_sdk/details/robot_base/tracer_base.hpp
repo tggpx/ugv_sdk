@@ -42,8 +42,8 @@ class TracerBaseV2 : public AgilexBase<ProtocolV2Parser>,
                                                     0.0, 0.0);
   }
 
-  void SetLightCommand(LightMode f_mode, uint8_t f_value) override {
-    AgilexBase<ProtocolV2Parser>::SendLightCommand(f_mode);
+  void SetLightCommand(LightMode mode) override {
+    AgilexBase<ProtocolV2Parser>::SendLightCommand(mode);
   }
 
   // get robot state
