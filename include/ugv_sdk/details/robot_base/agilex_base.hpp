@@ -295,6 +295,16 @@ class AgilexBase : public RobotCommonInterface {
         core_state_msgs_.peripherals_state = status_msg.body.peripherals_state_msg;
         break;
       }
+      case AgxMsgBmsBasic: {
+        core_state_msgs_.time_stamp = AgxMsgRefClock::now();
+        core_state_msgs_.bms_state = status_msg.body.bms_basic_msg;
+        break;
+      }
+      case AgxMsgBmsExtended: {
+        core_state_msgs_.time_stamp = AgxMsgRefClock::now();
+        core_state_msgs_.bms_protection_state = status_msg.body.bms_extended_msg;
+        break;
+      }
       default:
         break;
     }

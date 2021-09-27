@@ -280,12 +280,31 @@ bool DecodeCanFrameV2(const struct can_frame *rx_frame, AgxMessage *msg) {
     }
     case CAN_MSG_BMS_BASIC_ID: {
       msg->type = AgxMsgBmsBasic;
-      // TODO
+
+      BmsBasicFrame *frame = (BmsBasicFrame *)(rx_frame->data);
+      msg->body.bms_basic_msg.battery_soc = frame->battery_soc;
+      msg->body.bms_basic_msg.battery_soh = frame->battery_soh;
+      msg->body.bms_basic_msg.current = ((int16_t)(frame->current.low_byte) |
+           (int16_t)(frame->current.high_byte) << 8) *
+          0.1;
+      msg->body.bms_basic_msg.voltage = ((uint16_t)(frame->voltage.low_byte) |
+           (uint16_t)(frame->voltage.high_byte) << 8) *
+          0.1;
+      msg->body.bms_basic_msg.temperature = ((uint16_t)(frame->temperature.low_byte) |
+           (uint16_t)(frame->temperature.high_byte) << 8) *
+          0.1;
       break;
     }
     case CAN_MSG_BMS_EXTENDED_ID: {
       msg->type = AgxMsgBmsExtended;
-      // TODO
+      
+      BmsExtendedFrame *frame = (BmsExtendedFrame *)(rx_frame->data);
+      msg->body.bms_extended_msg.battery_max_teperature = frame->battery_max_teperature;
+      msg->body.bms_extended_msg.battery_min_teperature = frame->battery_min_teperature;
+      msg->body.bms_extended_msg.protection_code1 = frame->protection_code1;
+      msg->body.bms_extended_msg.protection_code2 = frame->protection_code2;
+      msg->body.bms_extended_msg.protection_code3 = frame->protection_code3;
+      msg->body.bms_extended_msg.protection_code4 = frame->protection_code4;
       break;
     }
     /*************** query/config frame **************/

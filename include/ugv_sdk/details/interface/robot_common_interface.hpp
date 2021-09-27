@@ -33,6 +33,8 @@ struct CoreStateMsgGroup {
   LiftStateMessage lift_state;
   SickStateMessage sick_state;
   PeripheralsStateMessage peripherals_state;
+  BmsBasicMessage bms_state;
+  BmsExtendedMessage bms_protection_state;
 };
 
 struct ActuatorStateMsgGroup {

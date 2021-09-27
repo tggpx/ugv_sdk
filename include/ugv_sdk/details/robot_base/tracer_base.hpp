@@ -59,6 +59,8 @@ class TracerBaseV2 : public AgilexBase<ProtocolV2Parser>,
     tracer_state.lift_state = state.lift_state;
     tracer_state.sick_state = state.sick_state;
     tracer_state.peripherals_state = state.peripherals_state;
+    tracer_state.bms_state = state.bms_state;
+    tracer_state.bms_protection_state = state.bms_protection_state;
     return tracer_state;
   }
 
