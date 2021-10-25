@@ -65,9 +65,15 @@ $ git clone -b next https://github.com/westonrobot/ugv_sdk.git
 $ cd ..
 $ catkin_make
 ```
-
+### Build the SDK Without ROS
+```
+$ cd ugv_sdk
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
 ## Setup CAN-To-USB adapter 
- 
+
 1. Enable gs_usb kernel module
     ```
     $ sudo modprobe gs_usb
@@ -99,7 +105,9 @@ Two scripts inside the "./scripts" folder are provided for easy setup. You can r
 You can find demo code for each robot in "demo" folder. For example, run the demo for Scout robot
 
 ```
+$ cd ~/catkin_ws/src/ugv_sdk/build
 $ ./bin/demo_scout_robot can0
+
 ```
 
 ## Reference
